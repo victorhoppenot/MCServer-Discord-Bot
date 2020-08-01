@@ -37,8 +37,7 @@ client.on("message", message => {
     let member = message.memebr;
     let content = message.content;
     let channel = message.channel;
-
-    if((typeof channel).toLowerCase() === 'textchannel'){
+    try{
         if(member.permissions.has('ADMINISTRATOR')){
             if(content === '&&focus'){
                 this.focusedGuild = channel.guild;
@@ -52,6 +51,8 @@ client.on("message", message => {
                 message.reply('forcing player count');
             }
         }
+    } catch (error) {
+        console.log(error);
     }
 });
 
