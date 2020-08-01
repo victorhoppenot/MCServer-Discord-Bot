@@ -1,3 +1,4 @@
+require('dotenv').config();
 const axios = require('axios')
 const discord = require('discord.js');
 const client = new discord.Client()
@@ -29,8 +30,7 @@ function ping() {
 }
 
 client.on('ready', () => {
-    ping();
-    setInterval(ping, Math.max(1,process.env.MIN_INTERVAL || 1) * 60000);
+    console.log("I am ready!");
 });
 
 client.on("message", message => {
@@ -44,6 +44,8 @@ client.on("message", message => {
                 this.focusedGuild = channel.guild;
                 focused = true;
                 message.reply('focused on guild');
+                ping();
+                setInterval(ping, Math.max(1,process.env.MIN_INTERVAL || 1) * 60000);
             }
             if(content === '&&force'){
                 ping();
