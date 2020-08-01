@@ -38,7 +38,7 @@ client.on("message", message => {
     let content = message.content;
     let channel = message.channel;
     try{
-        if(member.permissions.has('ADMINISTRATOR')){
+        if(message.member.permissions.has('ADMINISTRATOR')){
             if(content === '&&focus'){
                 this.focusedGuild = channel.guild;
                 focused = true;
