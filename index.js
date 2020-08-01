@@ -4,9 +4,9 @@ const discord = require('discord.js');
 const client = new discord.Client()
 
 let focused = false;
-
+let focusedGuild = null;
 function ping() {
-    if(!focused){
+    if(!focused || !focusedGuild){
         return;
     }
     
@@ -40,7 +40,7 @@ client.on("message", message => {
     try{
         if(message.member.permissions.has('ADMINISTRATOR')){
             if(content === '&&focus'){
-                this.focusedGuild = channel.guild;
+                focusedGuild = channel.guild;
                 focused = true;
                 message.reply('focused on guild');
                 ping();
