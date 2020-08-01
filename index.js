@@ -43,6 +43,11 @@ client.on("message", message => {
             if(content === '&&focus'){
                 this.focusedGuild = channel.guild;
                 focused = true;
+                message.reply('focused on guild');
+            }
+            if(content === '&&force'){
+                ping();
+                message.reply('forcing player count');
             }
         }
     }
