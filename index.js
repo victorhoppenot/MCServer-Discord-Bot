@@ -19,7 +19,7 @@ function ping() {
             console.log('Player count is ', playerCount);
             focusedGuild.channels.cache.forEach((channel) => {
                 if(channel.name.charAt(0) == '&'){
-                    channel.setName(`& ${playerMessage}: ${playerCount}/${process.env.MAXPLAYERS}`);
+                    channel.setName(`& ${process.env.PLAYERMESSAGE}: ${playerCount}/${process.env.MAXPLAYERS}`);
                 }
             });
 		}
