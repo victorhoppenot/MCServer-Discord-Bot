@@ -44,7 +44,7 @@ client.on("message", message => {
                 focused = true;
                 message.reply('focused on guild');
                 ping();
-                setInterval(ping, Math.max(1,process.env.MIN_INTERVAL || 1) * 60000);
+                setInterval(ping, process.env.INTERVAL * 60000);
             }
             if(content === '&&force'){
                 ping();
