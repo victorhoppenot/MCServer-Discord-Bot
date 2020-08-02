@@ -23,7 +23,7 @@ function ping() {
                 if(channel.name.charAt(0) == '&'){
                     if(channel.type === 'category'){
                         channel.setName(`& ${process.env.PLAYERMESSAGE}: ${playerCount}/${maxPlayers}`);
-                        let childrenArr = channel.children.toArray();
+                        let childrenArr = channel.children.array();
                         childrenArr.forEach(function(c, i){
                             if(playerList.length <= i){
                                 c.delete();
