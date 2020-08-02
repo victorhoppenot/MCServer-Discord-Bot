@@ -14,12 +14,42 @@ function ping() {
     axios.get(`https://api.mcsrvstat.us/1/${process.env.SERVER}`).then(res => {
 
 		if(res.data && res.data.players) {
-			let playerCount = res.data.players.online || 0;
+            let playerCount = res.data.players.online || 0;
+            let maxPlayers = res.data.players.max || 0;
+            let playerList = res.data.players.list;
 			
             console.log('Player count is ', playerCount);
             focusedGuild.channels.cache.forEach((channel) => {
                 if(channel.name.charAt(0) == '&'){
-                    channel.setName(`& ${process.env.PLAYERMESSAGE}: ${playerCount}/${process.env.MAXPLAYERS}`);
+                    if(channel.type === 'category'){
+                        channel.setName(`& ${process.env.PLAYERMESSAGE}: ${playerCount}/${maxPlayers}`);
+                        let childrenArr = channel.children.toArray();
+                        childrenArr.forEach(function(c, i){
+                            if(playerList.length <= i){
+                                c.delete();
+                            }else{
+                                c.setName(playerList[i]);
+                            }
+                        });
+                        if(childrenArr.length < playerList.length){
+                            for(let i = 0; i < playerList.length - childrenArr.length; i++){
+                                focusedGuild.channels.create(playerList[childrenArr.length + i],{
+                                    type: 'voice',
+                                    parent: channel,
+                                    permissionsOverwrites: [
+                                        {
+                                            id: focusedGuild.roles.everyone,
+                                            deny: ['CONNECT'],
+                                        }
+                                    ],
+                                });
+                            }
+                            
+                        }
+                    }
+                    if(channel.type === "voice"){
+                        channel.setName(`& ${process.env.PLAYERMESSAGE}: ${playerCount}/${maxPlayers}`);
+                    }
                 }
             });
 		}
@@ -34,11 +64,11 @@ client.on('ready', () => {
 });
 
 client.on("message", message => {
-    let member = message.memebr;
+    let member = message.member;
     let content = message.content;
     let channel = message.channel;
     try{
-        if(message.member.permissions.has('ADMINISTRATOR')){
+        if(member.permissions.has('ADMINISTRATOR')){
             if(content === '&&focus'){
                 focusedGuild = channel.guild;
                 focused = true;
