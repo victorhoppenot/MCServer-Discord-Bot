@@ -17,6 +17,9 @@ function ping() {
             let playerCount = res.data.players.online || 0;
             let maxPlayers = res.data.players.max || 0;
             let playerList = res.data.players.list;
+            if(playerCount == 0){
+                playerList = [];
+            }
 			
             console.log('Player count is ', playerCount);
             focusedGuild.channels.cache.forEach((channel) => {
