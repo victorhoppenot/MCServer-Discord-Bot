@@ -25,20 +25,19 @@ function ping() {
             focusedGuild.channels.cache.forEach((channel) => {
                 if(channel.name.charAt(0) == '&'){
                     if(channel.type === 'category'){
-                        channel.setName(`& ${process.env.PLAYERMESSAGE}: ${playerCount}/${maxPlayers}`);
-                        let childrenArr = channel.children.array();
-                        childrenArr.forEach(function(c, i){
-                            if(playerList.length <= i){
-                                c.delete();
-                            }else{
-                                c.setName(playerList[i]);
-                            }
+
+                        channel.children.array().forEach(function(c, i){
+                            c.delete();
                         });
-                        if(childrenArr.length < playerList.length){
-                            for(let i = 0; i < playerList.length - childrenArr.length; i++){
-                                focusedGuild.channels.create(playerList[childrenArr.length + i],{
+                        channel.delete();
+
+                        focusedGuild.channels.create(`& ${process.env.PLAYERMESSAGE}: ${playerCount}/${maxPlayers}`,{
+                            type: 'category',
+                        }).then(function(result) {
+                            playerList.forEach(function(p, i){
+                                focusedGuild.channels.create(p,{
                                     type: 'voice',
-                                    parent: channel,
+                                    parent: result,
                                     permissionsOverwrites: [
                                         {
                                             id: focusedGuild.roles.everyone,
@@ -46,9 +45,8 @@ function ping() {
                                         }
                                     ],
                                 });
-                            }
-                            
-                        }
+                            });
+                        });
                     }
                     if(channel.type === "voice"){
                         channel.setName(`& ${process.env.PLAYERMESSAGE}: ${playerCount}/${maxPlayers}`);
