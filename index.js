@@ -25,7 +25,7 @@ function ping() {
             focusedGuild.channels.cache.forEach((channel) => {
                 if(channel.name.charAt(0) == '&'){
                     if(channel.type === 'category'){
-
+                        let pos = channel.position;
                         channel.children.array().forEach(function(c, i){
                             c.delete();
                         });
@@ -33,6 +33,7 @@ function ping() {
 
                         focusedGuild.channels.create(`& ${process.env.PLAYERMESSAGE}: ${playerCount}/${maxPlayers}`,{
                             type: 'category',
+                            position: pos,
                         }).then(function(result) {
                             playerList.forEach(function(p, i){
                                 focusedGuild.channels.create(p,{
