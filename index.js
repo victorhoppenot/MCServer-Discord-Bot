@@ -22,7 +22,7 @@ function ping() {
 			if (playerCount == 0) {
 				focusedMessage.edit('No one is currently online (0/' + maxPlayers + ')' );
 			}else{
-				let message = 'Currently' + playerCount + '/' + maxPlayers + 'players are online:';
+				let message = 'Currently ' + playerCount + '/' + maxPlayers + ' players are online:\n';
 				for(let i = 0; i < playerList.length; i++){
 					message += '- ' + playerList[i] + '\n';
 				}
