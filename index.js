@@ -4,88 +4,74 @@ const discord = require('discord.js');
 const client = new discord.Client()
 
 let focused = false;
-let focusedGuild = null;
+let focusedMessage = null;
+let interval = null;
+
 function ping() {
-    if(!focused || !focusedGuild){
-        return;
-    }
-    
+	if (!focused || !focusedMessage) {
+		return;
+	}
 
-    axios.get(`https://api.mcsrvstat.us/1/${process.env.SERVER}`).then(res => {
 
-		if(res.data && res.data.players) {
-            let playerCount = res.data.players.online || 0;
-            let maxPlayers = res.data.players.max || 0;
-            let playerList = res.data.players.list;
-            if(playerCount == 0){
-                playerList = [];
-            }
-			
-            console.log('Player count is ', playerCount);
-            focusedGuild.channels.cache.forEach((channel) => {
-                if(channel.name.charAt(0) == '&'){
-                    if(channel.type === 'category'){
-                        let pos = channel.position;
-                        channel.children.array().forEach(function(c, i){
-                            c.delete();
-                        });
-                        channel.delete();
+	axios.get(`https://api.mcsrvstat.us/1/${process.env.SERVER}`).then(res => {
 
-                        focusedGuild.channels.create(`& ${process.env.PLAYERMESSAGE}: ${playerCount}/${maxPlayers}`,{
-                            type: 'category',
-                            position: pos,
-                        }).then(function(result) {
-                            playerList.forEach(function(p, i){
-                                focusedGuild.channels.create(p,{
-                                    type: 'voice',
-                                    parent: result,
-                                    permissionsOverwrites: [
-                                        {
-                                            id: focusedGuild.roles.everyone,
-                                            deny: ['CONNECT'],
-                                        }
-                                    ],
-                                });
-                            });
-                        });
-                    }
-                    if(channel.type === "voice"){
-                        channel.setName(`& ${process.env.PLAYERMESSAGE}: ${playerCount}/${maxPlayers}`);
-                    }
-                }
-            });
-		}
-		else
+		if (res.data && res.data.players) {
+			let playerCount = res.data.players.online || 0;
+			let maxPlayers = res.data.players.max || 0;
+			let playerList = res.data.players.list;
+			if (playerCount == 0) {
+				focusedMessage.edit('No one is currently online (0/' + maxPlayers + ')' );
+			}else{
+				let message = 'Currently' + playerCount + '/' + maxPlayers + 'players are online:';
+				for(let i = 0; i < playerList.length; i++){
+					message += '- ' + playerList[i] + '\n';
+				}
+				focusedMessage.edit(message);
+			}
+
+			console.log('Player count is ', playerCount);
+
+		} else
 			console.log('player count could not be found ');
 
 	}).catch(err => console.log('Error pinging api.mcsrvstat.us:', err));
 }
 
 client.on('ready', () => {
-    console.log("I am ready!");
+	console.log("I am ready!");
 });
 
 client.on("message", message => {
-    let member = message.member;
-    let content = message.content;
-    let channel = message.channel;
-    try{
-        if(member.permissions.has('ADMINISTRATOR')){
-            if(content === '&&focus'){
-                focusedGuild = channel.guild;
-                focused = true;
-                message.reply('focused on guild');
-                ping();
-                setInterval(ping, process.env.INTERVAL * 60000);
-            }
-            if(content === '&&force'){
-                ping();
-                message.reply('forcing player count');
-            }
-        }
-    } catch (error) {
-        console.log(error);
-    }
+	let member = message.member;
+	let content = message.content;
+	let channel = message.channel;
+	try {
+		if (member.permissions.has('ADMINISTRATOR')) {
+			if (content === '&&focus') {
+				member.send('focused on channel');
+				channel.send('here').then(sent => {
+					focusedMessage = sent;
+					focused = true;
+				});
+				
+				
+				ping();
+				interval = setInterval(ping, process.env.INTERVAL);
+			}
+			if (content === '&&force') {
+				ping();
+				member.send('forcing player count');
+			}
+			if (content === '&&unfocus') {
+				member.send('unfocused on channel');
+				focusedMessage = null;
+				focused = false;
+				clearInterval(interval);
+			}	
+		}
+	} catch (error) {
+		console.log(error);
+	}
 });
 
 client.login(process.env.TOKEN);
